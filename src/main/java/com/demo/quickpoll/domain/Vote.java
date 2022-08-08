@@ -18,6 +18,11 @@ public class Vote {
 
     }
 
+    public Vote(Long id, Option option) {
+        Id = id;
+        this.option = option;
+    }
+
     public Long getId() {
         return Id;
     }
