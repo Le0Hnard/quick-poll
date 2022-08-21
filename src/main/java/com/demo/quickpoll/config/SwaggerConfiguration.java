@@ -15,13 +15,30 @@ import java.util.Collections;
 public class SwaggerConfiguration {
 
     @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors.basePackage("com.demo.quickpoll.controller"))
-                .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false);
+    public Docket apiV1() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.regex("/v1/*.*"))
+                .build()
+                .apiInfo(apiInfo("v1"))
+                .groupName("v1")
+                .useDefaultResponseMessages(false);
     }
 
-    private ApiInfo apiInfo() {
+    @Bean
+    public Docket apiV2() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.regex("/v2/*.*"))
+                .build()
+                .apiInfo(apiInfo("v2"))
+                .groupName("v2")
+                .useDefaultResponseMessages(false);
+    }
+
+    private ApiInfo apiInfo(String version) {
         return new ApiInfo(
                 "QuickPoll REST API",
                 "QuickPoll Api for creating and managing polls",
