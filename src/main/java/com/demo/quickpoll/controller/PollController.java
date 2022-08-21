@@ -1,8 +1,13 @@
 package com.demo.quickpoll.controller;
 
 import com.demo.quickpoll.domain.Poll;
+import com.demo.quickpoll.dto.error.ErrorDetail;
 import com.demo.quickpoll.exception.ResourceNotFoundException;
 import com.demo.quickpoll.repository.PollRepository;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +20,26 @@ import java.net.URI;
 import java.util.Optional;
 
 @RestController
+@Api(value = "polls", description = "Poll API")
 public class PollController {
 
     @Inject
     private PollRepository pollRepository;
 
+    @ApiOperation(value = "Retrieves all the polls", response = Poll.class, responseContainer = "List")
     @GetMapping("/polls")
     public ResponseEntity<Iterable<Poll>> getAllPolls() {
         Iterable<Poll> allPolls = pollRepository.findAll();
         return new ResponseEntity<>(pollRepository.findAll(), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Creates a new Poll", notes = "The newly created poll Id will be sent in the location response header", response = Void.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Poll Created Successfully", response = Void.class),
+            @ApiResponse(code = 500, message = "Error creating Poll", response = ErrorDetail.class)
+    })
     @PostMapping("/polls")
-    public ResponseEntity<?> createPoll(@Valid @RequestBody Poll poll) {
+    public ResponseEntity<Void> createPoll(@Valid @RequestBody Poll poll) {
         poll = pollRepository.save(poll);
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -37,6 +49,7 @@ public class PollController {
         return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Retrieves a Poll associated with the pollId", response = Poll.class)
     @GetMapping("/polls/{pollId}")
     public ResponseEntity<?> getPoll(@PathVariable Long pollId) throws Exception {
         return new ResponseEntity<>(verifyPoll(pollId), HttpStatus.OK);
